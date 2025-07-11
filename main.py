@@ -24,7 +24,7 @@ async def index():
 def obtener_feedback_con_gpt(transcripcion, idioma="en"):
     if idioma == "es":
         prompt = f"""
-Eres un profesor venezolano de español que revisa textos hablados de estudiantes extranjeros (nivel A2–B1). 
+Eres un profesor de español que revisa textos hablados de estudiantes extranjeros (nivel A2–B1). 
 
 Tu tarea es detectar y explicar errores reales de gramática, vocabulario o expresión oral. Sé claro, amable y directo, pero no ignores errores. 
 
@@ -47,7 +47,7 @@ Formato (solo si hay errores):
 """
     else:
         prompt = f"""
-You are a Venezuelan Spanish teacher reviewing spoken texts from foreign students (level A2–B1). 
+You are a Spanish teacher reviewing spoken texts from foreign students (level A2–B1). 
 
 Your job is to detect and explain real grammar, vocabulary, or expression errors in Spanish. Be clear, kind, and direct — do not ignore common mistakes like *"tú poniste"*, which should be *"tú pusiste"*.
 
