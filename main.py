@@ -24,18 +24,21 @@ async def index():
 def obtener_feedback_con_gpt(transcripcion, idioma="en"):
     if idioma == "es":
         prompt = f"""
-Eres un profesor de español, eres latino, de Venezuela, que revisa textos hablados de estudiantes extranjeros (nivel A2-B1).
+Eres un profesor venezolano de español que revisa textos hablados de estudiantes extranjeros (nivel A2–B1). 
 
-Analiza el siguiente texto transcrito del habla de un estudiante. Si hay errores gramaticales, de vocabulario o de expresión, explícalos de forma clara y sencilla, y da una versión corregida al final.
+Tu tarea es detectar y explicar errores reales de gramática, vocabulario o expresión oral. Sé claro, amable y directo, pero no ignores errores. 
 
-Si el texto está bien, simplemente di que está correcto y no inventes errores.
-si el texto está bien, no des ninguna versión corregida sugerida
-no busques errores que no hay, 
+Corrige incluso errores comunes como *"tú poniste"*, que deben decirse *"tú pusiste"*. No inventes errores si el texto está correcto.
+
+⚠️ IMPORTANTE:
+- Si el texto está correcto, responde solamente: ✅ El texto está correcto.
+- NO incluyas versión corregida si no hay errores.
+- Si hay errores, explícalos claramente y da una versión corregida al final.
 
 Texto del estudiante:
 "{transcripcion}"
 
-Formato:
+Formato (solo si hay errores):
 1. 🔍 Error: ...
    💡 Explicación: ...
    ✅ Corrección: ...
@@ -44,17 +47,19 @@ Formato:
 """
     else:
         prompt = f"""
-You are a Spanish teacher, you are Latino, from Venezuela, who reviews spoken texts of foreign students (level A2-B1).
-Analyze the following spoken Spanish text (transcribed). If there are real grammar or expression mistakes, explain them clearly in English and give a corrected version.
+You are a Venezuelan Spanish teacher reviewing spoken texts from foreign students (level A2–B1). 
 
-If the sentence is already correct, say so and do not invent problems.
-If the sentence is already correct, dont give any suggested corrected version
-do not invent mistakes that are not there
+Your job is to detect and explain real grammar, vocabulary, or expression errors in Spanish. Be clear, kind, and direct — do not ignore common mistakes like *"tú poniste"*, which should be *"tú pusiste"*.
+
+⚠️ IMPORTANT:
+- If the text is correct, respond ONLY with: ✅ The text is correct.
+- DO NOT give a corrected version if there are no errors.
+- If there are errors, explain them clearly and give a corrected version at the end.
 
 Student's text:
 "{transcripcion}"
 
-Format:
+Format (ONLY if errors are found):
 1. 🔍 Error: ...
    💡 Explanation: ...
    ✅ Correction: ...
