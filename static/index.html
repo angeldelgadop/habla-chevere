@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Habla Chévere</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0fdf4;
+      color: #1b3a4b;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #1b5e20;
+    }
+
+    .boton {
+      background-color: #2196f3;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+
+    .boton:hover {
+      background-color: #1976d2;
+    }
+
+    video {
+      width: 50%;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: 2px solid #81c784;
+    }
+
+    pre {
+      background-color: #e8f5e9;
+      padding: 12px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      font-size: 16px;
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    #result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎙️ Habla Chévere</h1>
+  <p><strong>Instrucciones:</strong> Press the button "iniciar" and speak your phrase, when you finish press "Detener".</p>
+
+  <label for="language">Idioma del feedback:</label>
+  <select id="language">
+    <option value="en">🇬🇧 Inglés</option>
+    <option value="es">🇪🇸 Español</option>
+  </select>
+
+  <video id="preview" autoplay muted></video><br>
+
+  <button id="startBtn" class="boton">🔴 Iniciar</button>
+  <button id="stopBtn" class="boton" disabled>⏹️ Detener</button>
+
+  <div id="result"></div>
+
+  <script>
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    const preview = document.getElementById("preview");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const resultDiv = document.getElementById("result");
+    const languageSelect = document.getElementById("language");
+
+    async function iniciarCamara() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      preview.srcObject = stream;
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append("file", blob, "grabacion.webm");
+        formData.append("language", languageSelect.value);  // 👈 idioma
+
+        resultDiv.innerText = "⏳ Enviando al profesor...";
+
+        try {
+          const response = await fetch("/upload/", {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await response.json();
+
+          if (data.error) {
+            resultDiv.innerText = "❌ Error del servidor: " + data.error;
+            return;
+          }
+
+          resultDiv.innerHTML = `
+            <strong>📝 Transcripción:</strong><br>
+            <p>${data.transcription}</p>
+            <strong>📌 Observaciones del profesor:</strong><br>
+            <pre>${data.feedback}</pre>
+          `;
+        } catch (err) {
+          console.error(err);
+          resultDiv.innerText = "❌ Error al enviar: " + err.message;
+        }
+
+        recordedChunks = [];
+      };
+    }
+
+    startBtn.onclick = () => {
+      mediaRecorder.start();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      resultDiv.innerText = "🎙️ Grabando...";
+    };
+
+    stopBtn.onclick = () => {
+      mediaRecorder.stop();
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      resultDiv.innerText = "⏳ Procesando...";
+    };
+
+    iniciarCamara();
+  </script>
+
+</body>
+</html>
