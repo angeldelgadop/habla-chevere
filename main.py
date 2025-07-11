@@ -24,55 +24,74 @@ async def index():
 def obtener_feedback_con_gpt(transcripcion, idioma="en"):
     if idioma == "es":
         prompt = f"""
-Eres un profesor de español que revisa textos hablados de estudiantes extranjeros (nivel A2–B1). 
+Eres un profesor de español con acento latino (venezolano), que revisa grabaciones habladas de estudiantes extranjeros de nivel A2–B1.
 
-Tu tarea es detectar y explicar errores reales de gramática, vocabulario o expresión oral. Sé claro, amable y directo, pero no ignores errores. 
+Tu tarea es detectar errores reales de gramática, vocabulario o expresión, y explicarlos de forma clara y amigable. NO ignores errores comunes como:
 
-Corrige incluso errores comunes como *"tú poniste"*, que deben decirse *"tú pusiste"*. No inventes errores si el texto está correcto.
+- "yo sabo" → "yo sé"
+- "has escribido" → "has escrito"
+- "tú poniste" → "tú pusiste"
+- "me recuerdo" → "me acuerdo"
+- "haiga" → "haya"
 
-⚠️ IMPORTANTE:
-- Si el texto está correcto, responde solamente: ✅ El texto está correcto.
-- NO incluyas versión corregida si no hay errores.
-- Si hay errores, explícalos claramente y da una versión corregida al final.
+⚠️ INSTRUCCIONES IMPORTANTES:
+
+1. Si el texto es correcto, responde exactamente: ✅ El texto está correcto.  
+   ❌ No expliques nada.  
+   ❌ No des corrección.  
+   ❌ No inventes errores.
+
+2. Si hay errores, sigue este formato estructurado:
+
+🔍 **Error 1**: texto con error  
+💡 **Explicación**: por qué está mal  
+✅ **Corrección**: forma correcta
+
+(Repite para cada error si hay más de uno)
+
+✍️ **Versión corregida sugerida**: el texto completo corregido
 
 Texto del estudiante:
 "{transcripcion}"
-
-Formato (solo si hay errores):
-1. 🔍 Error: ...
-   💡 Explicación: ...
-   ✅ Corrección: ...
-...
-✍️ Versión corregida sugerida: ...
 """
     else:
         prompt = f"""
-You are a Spanish teacher reviewing spoken texts from foreign students (level A2–B1). 
+You are a friendly but precise Spanish teacher from Venezuela, reviewing spoken texts from A2–B1 students.
 
-Your job is to detect and explain real grammar, vocabulary, or expression errors in Spanish. Be clear, kind, and direct — do not ignore common mistakes like *"tú poniste"*, which should be *"tú pusiste"*.
+Your job is to detect real grammar, vocabulary, or expression mistakes. DO NOT ignore common learner errors like:
 
-⚠️ IMPORTANT:
-- If the text is correct, respond ONLY with: ✅ The text is correct.
-- DO NOT give a corrected version if there are no errors.
-- If there are errors, explain them clearly and give a corrected version at the end.
+- "yo sabo" → "yo sé"
+- "has escribido" → "has escrito"
+- "tú poniste" → "tú pusiste"
+- "me recuerdo" → "me acuerdo"
+
+⚠️ INSTRUCTIONS:
+
+1. If the sentence is correct, respond **exactly**: ✅ The text is correct.  
+   ❌ Do NOT explain.  
+   ❌ Do NOT suggest corrections.
+
+2. If there are errors, follow this structure:
+
+🔍 **Error 1**: incorrect phrase  
+💡 **Explanation**: what’s wrong  
+✅ **Correction**: the correct version
+
+(Repeat for more errors if needed)
+
+✍️ **Suggested corrected version**: full corrected sentence
 
 Student's text:
 "{transcripcion}"
-
-Format (ONLY if errors are found):
-1. 🔍 Error: ...
-   💡 Explanation: ...
-   ✅ Correction: ...
-...
-✍️ Suggested corrected version: ...
 """
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.5
+        temperature=0.3
     )
     return response.choices[0].message.content.strip()
+
 
 @app.post("/upload/")
 async def upload_audio(file: UploadFile = File(...), language: str = Form("en")):
