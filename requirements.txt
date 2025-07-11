@@ -7,3 +7,4 @@ speechrecognition
 openai
 python-dotenv
 gtts
+gunicorn
