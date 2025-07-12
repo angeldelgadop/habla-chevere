@@ -8,4 +8,3 @@ openai
 python-dotenv
 gtts
 gunicorn
-ltiauth-fastapi
