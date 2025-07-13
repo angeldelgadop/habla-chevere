@@ -12,7 +12,7 @@ import traceback
 
 # Cargar API KEY desde .env
 load_dotenv()
-client = OpenAI(api_key=os.getenv("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"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
 
